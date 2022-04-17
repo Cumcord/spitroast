@@ -32,8 +32,8 @@ exampleObject.testFunction(); // logs "Before", then "After"
 
 
 // Patches that replace the original function
-const unpatch = spitroast.instead(exampleObject, 'testFunction', (args, originalFunction) => { // instead patches are passed the original function as the second argument
-  console.log("Instead")
+const unpatch = spitroast.instead('testFunction', exampleObject, (args, originalFunction) => { // instead patches are passed the original function as the second argument
+  console.log('Instead')
 });
 
 exampleObject.testFunction(); // logs "Instead" and nothing else
