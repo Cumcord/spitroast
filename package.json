@@ -1,0 +1,19 @@
+{
+  "name": "spitroast",
+  "version": "1.0.0",
+  "description": "A simple JavaScript function patcher.",
+  "main": "cjs.js",
+  "module": "src/index.js",
+  "scripts": {
+    "postinstall": "esbuild --bundle src/index.js --outfile=cjs.js --format=cjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "github.com/Cumcord/spitroast"
+  },
+  "author": "creatable",
+  "license": "CC0-1.0",
+  "devDependencies": {
+    "esbuild": "^0.14.36"
+  }
+}
