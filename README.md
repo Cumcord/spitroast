@@ -1,5 +1,5 @@
 # spitroast
-A very simple JavaScript monkeypatcher library.
+A very simple JavaScript monkeypatcher library that inserts your code in both ends.
 
 # Usage
 ```javascript
