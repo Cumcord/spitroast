@@ -12,4 +12,4 @@ export type Patch = {
 };
 
 export const patches = new Map<symbol, Patch>();
-export const patchedObjects = new Map<any, Map<string, any>>();
+export const patchedObjects = new WeakMap<any, Map<string, any>>();
