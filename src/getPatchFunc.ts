@@ -2,13 +2,18 @@
 // allows us to apply an argument while leaving the rest open much cleaner.
 // functional programming strikes again! -- sink
 
-import hook from "./hook.js";
-import { patchedObjects, patches } from "./shared.js";
-import { unpatch } from "./unpatch.js";
+import hook from "./hook";
+import { patchedObjects, patches, PatchType } from "./shared";
+import { unpatch } from "./unpatch";
 
 // creates a hook if needed, else just adds one to the patches array
-export default (patchType) =>
-  (funcName, funcParent, callback, oneTimepatch = false) => {
+export default <CallbackType extends Function>(patchType: PatchType) =>
+  (
+    funcName: string,
+    funcParent: any,
+    callback: CallbackType,
+    oneTime = false
+  ) => {
     if (typeof funcParent[funcName] !== "function")
       throw new Error(
         `${funcName} is not a function in ${funcParent.constructor.name}`
@@ -17,21 +22,21 @@ export default (patchType) =>
     if (!patchedObjects.has(funcParent))
       patchedObjects.set(funcParent, new Map());
 
-    const functionInjection = patchedObjects.get(funcParent);
+    const parentInjections = patchedObjects.get(funcParent);
 
-    if (!functionInjection.has(funcName))
-      functionInjection.set(funcName, Symbol("SPITROAST_PATCH_ID"));
+    if (!parentInjections.has(funcName))
+      parentInjections.set(funcName, Symbol("SPITROAST_PATCH_ID"));
 
-    const patchId = functionInjection.get(funcName);
+    const patchId = parentInjections.get(funcName);
     const unpatchThisPatch = () => unpatch(patchId, hookId, patchType);
 
     if (!patches.has(patchId)) {
-      const originalFunction = funcParent[funcName];
+      const origFunc = funcParent[funcName];
 
       patches.set(patchId, {
-        originalFunction,
-        functionParent: funcParent,
-        functionName: funcName,
+        origFunc,
+        funcParent,
+        funcName,
         hooks: {
           before: new Map(),
           instead: new Map(),
@@ -39,7 +44,7 @@ export default (patchType) =>
         },
       });
 
-      const replaceProxy = new Proxy(originalFunction, {
+      const replaceProxy = new Proxy(origFunc, {
         apply(_, thisArg, args) {
           const retVal = hook(
             funcName,
@@ -50,7 +55,7 @@ export default (patchType) =>
             false
           );
 
-          if (oneTimepatch) unpatchThisPatch();
+          if (oneTime) unpatchThisPatch();
 
           return retVal;
         },
@@ -61,35 +66,35 @@ export default (patchType) =>
             funcParent,
             patchId,
             args,
-            originalFunction,
+            origFunc,
             true
           );
 
-          if (oneTimepatch) unpatchThisPatch();
+          if (oneTime) unpatchThisPatch();
 
           return retVal;
         },
 
-        get(_, prop) {
+        get(target, prop, receiver) {
           // yes it is weird to pass args to toString, but i figure we should accurately polyfill the behavior
           if (prop == "toString")
-            return (...args) => originalFunction.toString(...args);
+            return (...args: unknown[]) => origFunc.toString(...args);
 
-          return Reflect.get(...arguments);
+          return Reflect.get(target, prop, receiver);
         },
       });
 
-      try {
-        Object.defineProperty(funcParent, funcName, {
-          value: replaceProxy,
-          configurable: true,
-          writable: true,
-        });
-      } catch {
-        funcParent[funcName] = replaceProxy;
-      }
+      // see comment in unpatch.ts
+      const success = Reflect.defineProperty(funcParent, funcName, {
+        value: replaceProxy,
+        configurable: true,
+        writable: true,
+      });
+
+      if (!success) funcParent[funcName] = replaceProxy;
     }
 
+    // cannot be inlined, used inside unpatchThisPatch
     const hookId = Symbol("SPITROAST_HOOK_ID");
     patches.get(patchId)?.hooks[patchType].set(hookId, callback);
 
