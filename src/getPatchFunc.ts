@@ -19,75 +19,53 @@ export default <CallbackType extends Function>(patchType: PatchType) =>
         `${funcName} is not a function in ${funcParent.constructor.name}`
       );
 
-    if (!patchedObjects.has(funcParent))
-      patchedObjects.set(funcParent, {});
+    if (!patchedObjects.has(funcParent)) patchedObjects.set(funcParent, {});
 
     const parentInjections = patchedObjects.get(funcParent);
-    
+
     if (!parentInjections[funcName]) {
       const origFunc = funcParent[funcName];
-      
+
+      // note to future me optimising for size: extracting new Map() to a func increases size --sink
       parentInjections[funcName] = {
-        origFunc,
-        hooks: {
-          before: new Map(),
-          instead: new Map(),
-          after: new Map(),
-        },
+        o: origFunc,
+        b: new Map(),
+        i: new Map(),
+        a: new Map(),
+      };
+
+      const runHook = (ctxt: unknown, args: unknown[], construct: boolean) => {
+        const ret = hook(funcName, funcParent, args, ctxt, construct);
+        if (oneTime) unpatchThisPatch();
+        return ret;
       };
 
       const replaceProxy = new Proxy(origFunc, {
-        apply(_, thisArg, args) {
-          const retVal = hook(
-            funcName,
-            funcParent,
-            args,
-            thisArg,
-            false
-          );
-  
-          if (oneTime) unpatchThisPatch();
-  
-          return retVal;
-        },
-  
-        construct(_, args) {
-          const retVal = hook(
-            funcName,
-            funcParent,
-            args,
-            origFunc,
-            true
-          );
-  
-          if (oneTime) unpatchThisPatch();
-  
-          return retVal;
-        },
-  
-        get(target, prop, receiver) {
-          // yes it is weird to pass args to toString, but i figure we should accurately polyfill the behavior
-          if (prop == "toString")
-            return (...args: unknown[]) => origFunc.toString(...args);
-  
-          return Reflect.get(target, prop, receiver);
-        },
+        apply: (_, ctxt, args) => runHook(ctxt, args, false),
+        construct: (_, args) => runHook(origFunc, args, true),
+
+        get: (target, prop, receiver) =>
+          prop == "toString"
+            ? origFunc.toString.bind(origFunc)
+            : Reflect.get(target, prop, receiver),
       });
-  
+
+      // this works around breaking some async find implementation which listens for assigns via proxy
       // see comment in unpatch.ts
       const success = Reflect.defineProperty(funcParent, funcName, {
         value: replaceProxy,
         configurable: true,
         writable: true,
       });
-  
+
       if (!success) funcParent[funcName] = replaceProxy;
     }
 
-    const hookId = Symbol("SPITROAST_HOOK");
-    const unpatchThisPatch = () => unpatch(funcParent, funcName, hookId, patchType);
+    const hookId = Symbol();
+    const unpatchThisPatch = () =>
+      unpatch(funcParent, funcName, hookId, patchType);
 
-    parentInjections[funcName].hooks[patchType].set(hookId, callback);
+    parentInjections[funcName][patchType].set(hookId, callback);
 
     return unpatchThisPatch;
   };
