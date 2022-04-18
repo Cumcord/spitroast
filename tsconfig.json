@@ -1,0 +1,11 @@
+{
+  "include": ["src/**/*.ts"],
+  "compilerOptions": {
+    "target": "ESNext",
+    "noImplicitAny": true,
+    "declaration": true,
+    "declarationDir": "dist/types",
+    "outDir": "dist/esm",
+    "module": "ESNext"
+  }
+}
