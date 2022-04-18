@@ -1,4 +1,4 @@
-import { INJECTION_KEY, patches } from "./shared.js";
+import { patchedObjects, patches } from "./shared.js";
 
 export function unpatch(patchId, hookId, type) {
   const patch = patches.get(patchId);
@@ -10,6 +10,8 @@ export function unpatch(patchId, hookId, type) {
   if (!hooks[type].has(hookId)) return false;
 
   hooks[type].delete(hookId);
+
+  const patchIdMap = patchedObjects.get(patch.functionParent);
 
   // If there are no more hooks for every type, remove the patch
   const types = Object.keys(hooks);
@@ -24,11 +26,11 @@ export function unpatch(patchId, hookId, type) {
       patch.functionParent[patch.functionName] = patch.originalFunction;
     }
 
-    patch.functionParent[INJECTION_KEY].delete(patch.functionName);
+    patchIdMap.delete(patch.functionName);
     patches.delete(patchId);
   }
 
-  if (patch.functionParent[INJECTION_KEY].size == 0) delete patch.functionParent[INJECTION_KEY];
+  if (patchIdMap.size == 0) patchedObjects.delete(patch.functionParent);
 
   return true;
 }

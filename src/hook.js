@@ -1,6 +1,6 @@
 // the function that is actually injected into patched functions
 
-import { INJECTION_KEY, patches } from "./shared.js";
+import { patches, patchedObjects } from "./shared.js";
 
 // calls all relevant patches
 export default function (
@@ -17,7 +17,7 @@ export default function (
 
   if (!patch) {
     try {
-      patch = patches.get(functionParent[INJECTION_KEY].get(functionName));
+      patch = patches.get(patchedObjects.get(functionParent));
     } catch {} // epic DRY code.
   }
 

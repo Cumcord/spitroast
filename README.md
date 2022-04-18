@@ -22,7 +22,7 @@ exampleObject.testFunction(); // logs "Before"
 
 
 // Patches that run after the original function
-spitroast.after('testFunction', exampleObject, (args, response) => {
+spitroast.after('testFunction', exampleObject, (args, response) => { // response is the return value of the function
   console.log('After');
 
   // You can return something to replace the original response

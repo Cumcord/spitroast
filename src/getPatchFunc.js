@@ -3,22 +3,24 @@
 // functional programming strikes again! -- sink
 
 import hook from "./hook.js";
-import { INJECTION_KEY, patches } from "./shared.js";
+import { patchedObjects, patches } from "./shared.js";
 import { unpatch } from "./unpatch.js";
 
 // creates a hook if needed, else just adds one to the patches array
 export default (patchType) =>
   (funcName, funcParent, callback, oneTimepatch = false) => {
     if (typeof funcParent[funcName] !== "function")
-      throw new Error(`${funcName} is not a function in ${funcParent.constructor.name}`);
+      throw new Error(
+        `${funcName} is not a function in ${funcParent.constructor.name}`
+      );
 
-    if (!Object.hasOwnProperty.call(funcParent, INJECTION_KEY))
-      funcParent[INJECTION_KEY] = new Map();
+    if (!patchedObjects.has(funcParent))
+      patchedObjects.set(funcParent, new Map());
 
-    const functionInjection = funcParent[INJECTION_KEY];
+    const functionInjection = patchedObjects.get(funcParent);
 
     if (!functionInjection.has(funcName))
-      functionInjection.set(funcName, Symbol("CUMCORD_PATCH_ID"));
+      functionInjection.set(funcName, Symbol("SPITROAST_PATCH_ID"));
 
     const patchId = functionInjection.get(funcName);
     const unpatchThisPatch = () => unpatch(patchId, hookId, patchType);
@@ -39,7 +41,14 @@ export default (patchType) =>
 
       const replaceProxy = new Proxy(originalFunction, {
         apply(_, thisArg, args) {
-          const retVal = hook(funcName, funcParent, patchId, args, thisArg, false);
+          const retVal = hook(
+            funcName,
+            funcParent,
+            patchId,
+            args,
+            thisArg,
+            false
+          );
 
           if (oneTimepatch) unpatchThisPatch();
 
@@ -47,7 +56,14 @@ export default (patchType) =>
         },
 
         construct(_, args) {
-          const retVal = hook(funcName, funcParent, patchId, args, originalFunction, true);
+          const retVal = hook(
+            funcName,
+            funcParent,
+            patchId,
+            args,
+            originalFunction,
+            true
+          );
 
           if (oneTimepatch) unpatchThisPatch();
 
@@ -56,7 +72,8 @@ export default (patchType) =>
 
         get(_, prop) {
           // yes it is weird to pass args to toString, but i figure we should accurately polyfill the behavior
-          if (prop == "toString") return (...args) => originalFunction.toString(...args);
+          if (prop == "toString")
+            return (...args) => originalFunction.toString(...args);
 
           return Reflect.get(...arguments);
         },
