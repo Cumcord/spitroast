@@ -2,8 +2,6 @@ export type PatchType = "after" | "before" | "instead";
 
 export type Patch = {
   origFunc: Function;
-  funcName: string;
-  funcParent: any;
   hooks: {
     after: Map<symbol, Function>;
     before: Map<symbol, Function>;
@@ -11,5 +9,8 @@ export type Patch = {
   };
 };
 
-export const patches = new Map<symbol, Patch>();
-export const patchedObjects = new WeakMap<any, Map<string, any>>();
+interface PatchedObject {
+  [funcName: string]: Patch;
+}
+
+export const patchedObjects = new Map<object, PatchedObject>();

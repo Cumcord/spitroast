@@ -1,26 +1,19 @@
 // the function that is actually injected into patched functions
 
-import { patches } from "./shared";
+import { patchedObjects } from "./shared";
 
 // calls all relevant patches
 export default function (
   funcName: string,
   funcParent: any,
-  patchId: symbol,
   originalArgs: unknown[],
   // the value of `this` to apply
   ctxt: any,
   // if true, the function is actually constructor
   isConstruct: boolean
 ) {
-  let patch = patches.get(patchId);
-
-  // if an old unpatched hook is called somehow
-  if (!patch)
-    patch = Array.from(patches.values()).find(
-      (p) => p.funcParent === funcParent && p.funcName === "funcName"
-    );
-
+  let patch = patchedObjects.get(funcParent)?.[funcName];
+  
   // This is in the event that this function is being called after all patches are removed.
   if (!patch)
     return isConstruct
