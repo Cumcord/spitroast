@@ -1,55 +1,47 @@
-// the function that is actually injected into patched functions
+// calls relevant patches and returns the final result
 
 import { patchedObjects } from "./shared";
 
-// calls all relevant patches
 export default function (
   funcName: string,
   funcParent: any,
-  originalArgs: unknown[],
+  funcArgs: unknown[],
   // the value of `this` to apply
   ctxt: any,
   // if true, the function is actually constructor
   isConstruct: boolean
 ) {
-  let patch = patchedObjects.get(funcParent)?.[funcName];
-  
+  const patch = patchedObjects.get(funcParent)?.[funcName];
+
   // This is in the event that this function is being called after all patches are removed.
   if (!patch)
     return isConstruct
-      ? Reflect.construct(funcParent[funcName], originalArgs, ctxt)
-      : funcParent[funcName].apply(ctxt, originalArgs);
-
-  const hooks = patch.hooks;
-  let newArgs = originalArgs;
+      ? Reflect.construct(funcParent[funcName], funcArgs, ctxt)
+      : funcParent[funcName].apply(ctxt, funcArgs);
 
   // Before patches
-  for (const hook of hooks.before.values()) {
-    const maybeNewArgs = hook.call(ctxt, newArgs);
-    if (Array.isArray(maybeNewArgs)) newArgs = maybeNewArgs;
+  for (const hook of patch.b.values()) {
+    const maybefuncArgs = hook.call(ctxt, funcArgs);
+    if (Array.isArray(maybefuncArgs)) funcArgs = maybefuncArgs;
   }
 
   // Instead patches
   let insteadPatchedFunc = (...args: unknown[]) =>
     isConstruct
-      ? Reflect.construct(patch.origFunc, args, ctxt)
-      : patch.origFunc.apply(ctxt, args);
+      ? Reflect.construct(patch.o, args, ctxt)
+      : patch.o.apply(ctxt, args);
 
-  for (const callback of hooks.instead.values()) {
+  for (const callback of patch.i.values()) {
     const oldPatchFunc = insteadPatchedFunc;
 
-    insteadPatchedFunc = (...args) =>
-      callback.apply(ctxt, [args, oldPatchFunc]);
+    insteadPatchedFunc = (...args) => callback.call(ctxt, args, oldPatchFunc);
   }
 
-  let workingRetVal = insteadPatchedFunc(...newArgs);
+  let workingRetVal = insteadPatchedFunc(...funcArgs);
 
   // After patches
-  for (const hook of hooks.after.values()) {
-    const maybeRet = hook.call(ctxt, newArgs, workingRetVal);
-
-    if (maybeRet !== undefined) workingRetVal = maybeRet;
-  }
+  for (const hook of patch.a.values())
+    workingRetVal = hook.call(ctxt, funcArgs, workingRetVal) ?? workingRetVal;
 
   return workingRetVal;
 }

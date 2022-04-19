@@ -1,12 +1,17 @@
-export type PatchType = "after" | "before" | "instead";
+export type PatchType = "a" | "b" | "i";
+
+// we use this array multiple times
+export const patchTypes: PatchType[] = ["a", "b", "i"];
 
 export type Patch = {
-  origFunc: Function;
-  hooks: {
-    after: Map<symbol, Function>;
-    before: Map<symbol, Function>;
-    instead: Map<symbol, Function>;
-  };
+  // original function
+  o: Function;
+  // after hooks
+  a: Map<symbol, Function>;
+  // before hooks
+  b: Map<symbol, Function>;
+  // instead hooks
+  i: Map<symbol, Function>;
 };
 
 interface PatchedObject {
