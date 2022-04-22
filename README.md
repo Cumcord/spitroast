@@ -1,4 +1,4 @@
-![](https://media.discordapp.net/attachments/862058896999186482/966031684753563708/unknown.png)
+![](https://raw.githubusercontent.com/Cumcord/assets/main/spitroast/banner.svg)
 
 # spitroast
 A very simple JavaScript monkeypatcher library that inserts your code in both ends.
