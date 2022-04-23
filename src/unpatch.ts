@@ -38,6 +38,6 @@ export function unpatchAll() {
   for (const [parentObject, patchedObject] of patchedObjects.entries())
     for (const funcName in patchedObject)
       for (const hookType of patchTypes)
-        for (const hookId of patchedObject[funcName][hookType].keys())
+        for (const hookId of patchedObject[funcName]?.[hookType].keys() ?? [])
           unpatch(parentObject, funcName, hookId, hookType);
 }
