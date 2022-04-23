@@ -23,10 +23,12 @@ export default <CallbackType extends Function>(patchType: PatchType) =>
 
     const parentInjections = patchedObjects.get(funcParent);
 
+    // @ts-expect-error
     if (!parentInjections[funcName]) {
       const origFunc = funcParent[funcName];
 
       // note to future me optimising for size: extracting new Map() to a func increases size --sink
+      // @ts-expect-error
       parentInjections[funcName] = {
         o: origFunc,
         b: new Map(),
@@ -65,6 +67,7 @@ export default <CallbackType extends Function>(patchType: PatchType) =>
     const unpatchThisPatch = () =>
       unpatch(funcParent, funcName, hookId, patchType);
 
+    // @ts-expect-error
     parentInjections[funcName][patchType].set(hookId, callback);
 
     return unpatchThisPatch;
