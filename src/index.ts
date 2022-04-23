@@ -1,5 +1,5 @@
-import getPatchFunc from "./getPatchFunc";
-import { unpatchAll } from "./unpatch";
+import getPatchFunc from "./getPatchFunc.ts";
+import { unpatchAll } from "./unpatch.ts";
 
 type BeforeCallback = (args: any[]) => undefined | any[];
 type InsteadCallback = (args: any[], origFunc: Function) => any;

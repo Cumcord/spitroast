@@ -1,4 +1,4 @@
-import { patchedObjects, PatchType, patchTypes } from "./shared";
+import { patchedObjects, PatchType, patchTypes } from "./shared.ts";
 
 export function unpatch(
   funcParent: any,

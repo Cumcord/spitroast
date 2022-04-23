@@ -2,9 +2,9 @@
 // allows us to apply an argument while leaving the rest open much cleaner.
 // functional programming strikes again! -- sink
 
-import hook from "./hook";
-import { patchedObjects, PatchType } from "./shared";
-import { unpatch } from "./unpatch";
+import hook from "./hook.ts";
+import { patchedObjects, PatchType } from "./shared.ts";
+import { unpatch } from "./unpatch.ts";
 
 // creates a hook if needed, else just adds one to the patches array
 export default <CallbackType extends Function>(patchType: PatchType) =>
