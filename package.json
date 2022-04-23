@@ -1,12 +1,12 @@
 {
   "name": "spitroast",
-  "version": "1.3.7",
+  "version": "1.3.8",
   "description": "A simple JavaScript function patcher.",
   "main": "dist/cjs.js",
   "module": "dist/esm/index.js",
   "types": "dist/types/index.d.ts",
   "scripts": {
-    "prepublish": "tsc && esbuild --bundle src/index.ts --outfile=dist/cjs.js --format=cjs"
+    "prepublish": "tsc-esm && esbuild --bundle src/index.ts --outfile=dist/cjs.js --format=cjs"
   },
   "repository": {
     "type": "git",
@@ -15,7 +15,7 @@
   "author": "creatable",
   "license": "CC0-1.0",
   "devDependencies": {
-    "esbuild": "^0.14.36",
-    "typescript": "^4.6.3"
+    "@digitak/tsc-esm": "^3.1.2",
+    "esbuild": "^0.14.36"
   }
 }
