@@ -6,6 +6,7 @@
   "module": "dist/esm/index.js",
   "types": "dist/types/index.d.ts",
   "scripts": {
+    "test": "mocha",
     "prepublish": "tsc-esm && esbuild --bundle src/index.ts --outfile=dist/cjs.js --format=cjs"
   },
   "repository": {
@@ -16,6 +17,9 @@
   "license": "CC0-1.0",
   "devDependencies": {
     "@digitak/tsc-esm": "^3.1.2",
-    "esbuild": "^0.14.36"
+    "esbuild": "^0.14.36",
+    "typescript": "^4.6.3",
+    "chai": "^4.3.6",
+    "mocha": "^9.2.2"
   }
 }

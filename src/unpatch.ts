@@ -1,4 +1,4 @@
-import { patchedObjects, PatchType, patchTypes } from "./shared.ts";
+import { patchedObjects, PatchType, patchTypes } from "./shared";
 
 export function unpatch(
   funcParent: any,
@@ -26,11 +26,9 @@ export function unpatch(
 
     if (!success) funcParent[funcName] = patch.o;
 
-    // @ts-expect-error
     delete patchedObject[funcName];
   }
-
-  // @ts-expect-error
+  
   if (Object.keys(patchedObject).length == 0) patchedObjects.delete(funcParent);
 
   return true;
