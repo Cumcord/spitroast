@@ -7,7 +7,7 @@
   "types": "dist/types/index.d.ts",
   "scripts": {
     "test": "mocha",
-    "prepublish": "tsc-esm && esbuild --bundle src/index.ts --outfile=dist/cjs.js --format=cjs"
+    "prepublish": "ttsc && esbuild --bundle src/index.ts --outfile=dist/cjs.js --format=cjs"
   },
   "repository": {
     "type": "git",
@@ -16,10 +16,11 @@
   "author": "creatable",
   "license": "CC0-1.0",
   "devDependencies": {
-    "@digitak/tsc-esm": "^3.1.2",
-    "esbuild": "^0.14.36",
-    "typescript": "^4.6.3",
+    "@zoltu/typescript-transformer-append-js-extension": "^1.0.1",
     "chai": "^4.3.6",
-    "mocha": "^9.2.2"
+    "esbuild": "^0.14.36",
+    "mocha": "^9.2.2",
+    "ttypescript": "^1.5.13",
+    "typescript": "^4.6.3"
   }
 }

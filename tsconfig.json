@@ -6,6 +6,12 @@
     "declaration": true,
     "declarationDir": "dist/types",
     "outDir": "dist/esm",
-    "module": "ESNext"
+    "module": "ESNext",
+    "plugins": [
+      {
+        "transform": "@zoltu/typescript-transformer-append-js-extension/output/index.js",
+        "after": true
+      }
+    ]
   }
 }
