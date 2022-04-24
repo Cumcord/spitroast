@@ -11,6 +11,9 @@ import * as spitroast from 'spitroast';
 // CJS
 const spitroast = require('spitroast');
 
+// Deno / CDN
+import * as spitroast from 'https://esm.sh/spitroast';
+
 const exampleObject = { testFunction: () => {} };
 
 // Patches that run before the original function
