@@ -1,6 +1,6 @@
 // calls relevant patches and returns the final result
 
-import { patchedObjects } from "./shared.ts";
+import { patchedObjects } from "./shared";
 
 export default function (
   funcName: string,

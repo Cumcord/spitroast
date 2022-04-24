@@ -2,9 +2,9 @@
 // allows us to apply an argument while leaving the rest open much cleaner.
 // functional programming strikes again! -- sink
 
-import hook from "./hook.ts";
-import { patchedObjects, PatchType } from "./shared.ts";
-import { unpatch } from "./unpatch.ts";
+import hook from "./hook";
+import { patchedObjects, PatchType } from "./shared";
+import { unpatch } from "./unpatch";
 
 // creates a hook if needed, else just adds one to the patches array
 export default <CallbackType extends Function>(patchType: PatchType) =>
@@ -23,12 +23,10 @@ export default <CallbackType extends Function>(patchType: PatchType) =>
 
     const parentInjections = patchedObjects.get(funcParent);
 
-    // @ts-expect-error
     if (!parentInjections[funcName]) {
       const origFunc = funcParent[funcName];
 
       // note to future me optimising for size: extracting new Map() to a func increases size --sink
-      // @ts-expect-error
       parentInjections[funcName] = {
         o: origFunc,
         b: new Map(),
@@ -67,7 +65,6 @@ export default <CallbackType extends Function>(patchType: PatchType) =>
     const unpatchThisPatch = () =>
       unpatch(funcParent, funcName, hookId, patchType);
 
-    // @ts-expect-error
     parentInjections[funcName][patchType].set(hookId, callback);
 
     return unpatchThisPatch;
