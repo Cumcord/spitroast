@@ -26,18 +26,16 @@ export default function (
   }
 
   // Instead patches
-  let insteadPatchedFunc = (...args: unknown[]) =>
-    isConstruct
-      ? Reflect.construct(patch.o, args, ctxt)
-      : patch.o.apply(ctxt, args);
-
-  for (const callback of patch.i.values()) {
-    const oldPatchFunc = insteadPatchedFunc;
-
-    insteadPatchedFunc = (...args) => callback.call(ctxt, args, oldPatchFunc);
-  }
-
-  let workingRetVal = insteadPatchedFunc(...funcArgs);
+  let workingRetVal = [...patch.i.values()].reduce(
+    (prev, current) =>
+      (...args: unknown[]) =>
+        current.call(ctxt, args, prev),
+    // This calls the original function
+    (...args: unknown[]) =>
+      isConstruct
+        ? Reflect.construct(patch.o, args, ctxt)
+        : patch.o.apply(ctxt, args)
+  )(...funcArgs);
 
   // After patches
   for (const hook of patch.a.values())

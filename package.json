@@ -1,12 +1,12 @@
 {
   "name": "spitroast",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "description": "A simple JavaScript function patcher.",
   "main": "dist/cjs.js",
   "module": "dist/esm/index.js",
   "types": "dist/types/index.d.ts",
   "scripts": {
-    "test": "mocha",
+    "test": "npm run prepublish && mocha",
     "prepublish": "ttsc && esbuild --bundle src/index.ts --outfile=dist/cjs.js --format=cjs"
   },
   "repository": {
