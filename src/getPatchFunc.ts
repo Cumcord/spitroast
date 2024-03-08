@@ -19,7 +19,7 @@ export default <CallbackType extends Function>(patchType: PatchType) =>
         `${funcName} is not a function in ${funcParent.constructor.name}`
       );
 
-    if (!patchedObjects.has(funcParent)) patchedObjects.set(funcParent, {});
+    if (!patchedObjects.has(funcParent)) patchedObjects.set(funcParent, Object.create(null));
 
     const parentInjections = patchedObjects.get(funcParent);
 
