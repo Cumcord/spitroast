@@ -1,13 +1,13 @@
 {
   "name": "spitroast",
-  "version": "1.4.3",
+  "version": "1.4.4",
   "description": "A simple JavaScript function patcher.",
   "main": "dist/cjs.js",
   "module": "dist/esm/index.js",
   "types": "dist/types/index.d.ts",
   "scripts": {
     "test": "npm run prepublish && mocha",
-    "prepublish": "ttsc && esbuild --bundle src/index.ts --outfile=dist/cjs.js --format=cjs"
+    "prepublish": "tspc && esbuild --bundle src/index.ts --outfile=dist/cjs.js --format=cjs"
   },
   "repository": {
     "type": "git",
@@ -16,11 +16,12 @@
   "author": "creatable",
   "license": "CC0-1.0",
   "devDependencies": {
-    "@zoltu/typescript-transformer-append-js-extension": "^1.0.1",
-    "chai": "^4.3.6",
-    "esbuild": "^0.14.36",
-    "mocha": "^9.2.2",
-    "ttypescript": "^1.5.13",
-    "typescript": "^4.6.3"
+    "@types/node": "^20.11.25",
+    "chai": "^5.1.0",
+    "esbuild": "^0.20.1",
+    "mocha": "^10.3.0",
+    "ts-node": "^10.9.2",
+    "ts-patch": "^3.1.2",
+    "typescript": "^5.4.2"
   }
 }

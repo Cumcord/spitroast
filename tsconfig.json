@@ -7,9 +7,10 @@
     "declarationDir": "dist/types",
     "outDir": "dist/esm",
     "module": "ESNext",
+    "moduleResolution": "node",
     "plugins": [
       {
-        "transform": "@zoltu/typescript-transformer-append-js-extension/output/index.js",
+        "transform": "./transform-extensions.ts",
         "after": true
       }
     ]
