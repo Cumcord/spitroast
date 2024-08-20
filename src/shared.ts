@@ -20,8 +20,6 @@ export type Patch = {
   i: Map<symbol, Function>;
 };
 
-export const patcherContext = { currentContext: { SHOULD_UNPATCH: false } };
-
 export let patchedFunctions: WeakMap<Function, Patch>;
 export let resetPatches = () =>
   (patchedFunctions = new WeakMap<Function, Patch>());

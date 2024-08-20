@@ -1,7 +1,9 @@
 import { PatchType, Patch, patchTypes, patchedFunctions } from "./shared";
 
-export function unpatch(patch: Patch, hookId: symbol, type: PatchType) {
-  if (!patch[type].delete(hookId)) return false;
+export function unpatch(patchRef: WeakRef<Patch>, hookId: symbol, type: PatchType) {
+  const patch = patchRef.deref();
+
+  if (!patch || !patch[type].delete(hookId)) return false;
   const funcParent = patch.p.deref();
 
   // If there are no more hooks for every type, remove the patch
@@ -25,5 +27,3 @@ export function unpatch(patch: Patch, hookId: symbol, type: PatchType) {
 
   return true;
 }
-
-export { resetPatches as unpatchAll } from "./shared";
