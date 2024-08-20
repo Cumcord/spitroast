@@ -31,8 +31,8 @@ export default function (
     // This calls the original function
     (...args: unknown[]) =>
       isConstruct
-        ? Reflect.construct(patch.o, args, ctxt)
-        : patch.o.apply(ctxt, args)
+        ? Reflect.construct(origFunc, args, ctxt)
+        : origFunc.apply(ctxt, args)
   )(...funcArgs);
 
   // After patches
@@ -40,7 +40,7 @@ export default function (
     workingRetVal = hook.call(ctxt, funcArgs, workingRetVal) ?? workingRetVal;
 
   // Cleanups (one-times)
-  patch.c.forEach((c) => c());
+  for (const cleanup of patch.c) cleanup()
   patch.c = [];
 
   return workingRetVal;
