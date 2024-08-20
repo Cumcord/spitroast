@@ -1,43 +1,29 @@
-import { patchedObjects, PatchType, patchTypes } from "./shared";
+import { PatchType, Patch, patchTypes, patchedFunctions } from "./shared";
 
-export function unpatch(
-  funcParent: any,
-  funcName: string,
-  hookId: symbol,
-  type: PatchType
-) {
-  const patchedObject = patchedObjects.get(funcParent);
-  const patch = patchedObject?.[funcName];
-
-  if (!patch?.[type].has(hookId)) return false;
-
-  patch[type].delete(hookId);
+export function unpatch(patch: Patch, hookId: symbol, type: PatchType) {
+  if (!patch[type].delete(hookId)) return false;
+  const funcParent = patch.p.deref();
 
   // If there are no more hooks for every type, remove the patch
-  if (patchTypes.every((t) => patch[t].size === 0)) {
+  if (funcParent && patchTypes.every((t) => patch[t].size === 0)) {
+    const funcName = patch.n;
+
+    patchedFunctions.delete(funcParent[funcName]);
+
     // reflect defineproperty is like object defineproperty
     // but instead of erroring it returns if it worked or not.
     // this is more easily minifiable, hence its use. -- sink
-    const success = Reflect.defineProperty(funcParent, funcName, {
-      value: patch.o,
-      writable: true,
-      configurable: true,
-    });
-
-    if (!success) funcParent[funcName] = patch.o;
-
-    delete patchedObject[funcName];
+    if (
+      !Reflect.defineProperty(funcParent, funcName, {
+        value: patch.o,
+        writable: true,
+        configurable: true,
+      })
+    )
+      funcParent[funcName] = patch.o;
   }
-  
-  if (Object.keys(patchedObject).length == 0) patchedObjects.delete(funcParent);
 
   return true;
 }
 
-export function unpatchAll() {
-  for (const [parentObject, patchedObject] of patchedObjects.entries())
-    for (const funcName in patchedObject)
-      for (const hookType of patchTypes)
-        for (const hookId of patchedObject[funcName]?.[hookType].keys() ?? [])
-          unpatch(parentObject, funcName, hookId, hookType);
-}
+export { resetPatches as unpatchAll } from "./shared";

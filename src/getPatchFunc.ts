@@ -3,7 +3,7 @@
 // functional programming strikes again! -- sink
 
 import hook from "./hook";
-import { patchedObjects, PatchType } from "./shared";
+import { PatchType, patchedFunctions } from "./shared";
 import { unpatch } from "./unpatch";
 
 // creates a hook if needed, else just adds one to the patches array
@@ -19,25 +19,18 @@ export default <CallbackType extends Function>(patchType: PatchType) =>
         `${funcName} is not a function in ${funcParent.constructor.name}`
       );
 
-    if (!patchedObjects.has(funcParent)) patchedObjects.set(funcParent, Object.create(null));
+    let origFunc = funcParent[funcName];
+    let funcPatch = patchedFunctions.get(origFunc);
 
-    const parentInjections = patchedObjects.get(funcParent);
-
-    if (!parentInjections[funcName]) {
-      const origFunc = funcParent[funcName];
-
-      // note to future me optimising for size: extracting new Map() to a func increases size --sink
-      parentInjections[funcName] = {
+    if (!funcPatch) {
+      funcPatch = {
+        n: funcName,
         o: origFunc,
+        p: new WeakRef(funcParent),
+        c: [],
         b: new Map(),
         i: new Map(),
         a: new Map(),
-      };
-
-      const runHook = (ctxt: unknown, args: unknown[], construct: boolean) => {
-        const ret = hook(funcName, funcParent, args, ctxt, construct);
-        if (oneTime) unpatchThisPatch();
-        return ret;
       };
 
       const replaceProxy = new Proxy(origFunc, {
@@ -50,22 +43,25 @@ export default <CallbackType extends Function>(patchType: PatchType) =>
             : Reflect.get(target, prop, receiver),
       });
 
-      // this works around breaking some async find implementation which listens for assigns via proxy
-      // see comment in unpatch.ts
-      const success = Reflect.defineProperty(funcParent, funcName, {
-        value: replaceProxy,
-        configurable: true,
-        writable: true,
-      });
+      const runHook: any = (ctxt: unknown, args: unknown[], construct: boolean) => hook(replaceProxy, origFunc, args, ctxt, construct);
 
-      if (!success) funcParent[funcName] = replaceProxy;
+      patchedFunctions.set(replaceProxy, funcPatch);
+
+      if (
+        !Reflect.defineProperty(funcParent, funcName, {
+          value: replaceProxy,
+          configurable: true,
+          writable: true,
+        })
+      )
+        funcParent[funcName] = replaceProxy;
     }
 
     const hookId = Symbol();
-    const unpatchThisPatch = () =>
-      unpatch(funcParent, funcName, hookId, patchType);
+    const unpatchThisPatch = () => unpatch(funcPatch, hookId, patchType);
 
-    parentInjections[funcName][patchType].set(hookId, callback);
+    if (oneTime) funcPatch.c.push(unpatchThisPatch);
+    funcPatch[patchType].set(hookId, callback);
 
     return unpatchThisPatch;
   };

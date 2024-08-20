@@ -4,8 +4,14 @@ export type PatchType = "a" | "b" | "i";
 export const patchTypes: PatchType[] = ["a", "b", "i"];
 
 export type Patch = {
+  // function name
+  n: string;
   // original function
   o: Function;
+  // WeakRef to parent object
+  p: WeakRef<any>;
+  // cleanups
+  c: Function[];
   // after hooks
   a: Map<symbol, Function>;
   // before hooks
@@ -14,8 +20,11 @@ export type Patch = {
   i: Map<symbol, Function>;
 };
 
-interface PatchedObject {
-  [funcName: string]: Patch;
-}
+export const patcherContext = { currentContext: { SHOULD_UNPATCH: false } };
 
-export const patchedObjects = new Map<object, PatchedObject>();
+export let patchedFunctions: WeakMap<Function, Patch>;
+export let resetPatches = () =>
+  (patchedFunctions = new WeakMap<Function, Patch>());
+
+// Manual minification is funny
+resetPatches();

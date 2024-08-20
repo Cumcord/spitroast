@@ -1,23 +1,21 @@
 // calls relevant patches and returns the final result
-
-import { patchedObjects } from "./shared";
+import { patchedFunctions } from "./shared";
 
 export default function (
-  funcName: string,
-  funcParent: any,
+  patchedFunc: Function,
+  origFunc: Function,
   funcArgs: unknown[],
   // the value of `this` to apply
   ctxt: any,
   // if true, the function is actually constructor
   isConstruct: boolean
 ) {
-  const patch = patchedObjects.get(funcParent)?.[funcName];
+  const patch = patchedFunctions.get(patchedFunc);
 
-  // This is in the event that this function is being called after all patches are removed.
   if (!patch)
     return isConstruct
-      ? Reflect.construct(funcParent[funcName], funcArgs, ctxt)
-      : funcParent[funcName].apply(ctxt, funcArgs);
+      ? Reflect.construct(origFunc, funcArgs, ctxt)
+      : origFunc.apply(ctxt, funcArgs);
 
   // Before patches
   for (const hook of patch.b.values()) {
@@ -40,6 +38,10 @@ export default function (
   // After patches
   for (const hook of patch.a.values())
     workingRetVal = hook.call(ctxt, funcArgs, workingRetVal) ?? workingRetVal;
+
+  // Cleanups (one-times)
+  patch.c.forEach((c) => c());
+  patch.c = [];
 
   return workingRetVal;
 }
