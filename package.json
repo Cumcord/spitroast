@@ -16,10 +16,10 @@
   "author": "creatable",
   "license": "CC0-1.0",
   "devDependencies": {
-    "@types/node": "^20.11.25",
-    "chai": "^5.1.0",
-    "mocha": "^10.3.0",
+    "@types/node": "^22.5.1",
+    "chai": "^5.1.1",
+    "mocha": "^10.7.3",
     "tsup": "^8.2.4",
-    "typescript": "^5.4.2"
+    "typescript": "^5.5.4"
   }
 }
