@@ -1,18 +1,9 @@
 {
-  "include": ["src/**/*.ts"],
-  "compilerOptions": {
-    "target": "ESNext",
-    "noImplicitAny": true,
-    "declaration": true,
-    "declarationDir": "dist/types",
-    "outDir": "dist/esm",
-    "module": "ESNext",
-    "moduleResolution": "node",
-    "plugins": [
-      {
-        "transform": "./transform-extensions.ts",
-        "after": true
-      }
-    ]
-  }
+	"include": ["src/**/*.ts"],
+	"compilerOptions": {
+		"target": "ES2022",
+		"module": "ES2022",
+		"moduleResolution": "Bundler",
+		"noEmit": true
+	}
 }

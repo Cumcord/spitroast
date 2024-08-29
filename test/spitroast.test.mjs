@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { afterEach, beforeEach, describe, it } from "mocha";
 
-import SR from "../dist/cjs.js";
+import SR from "../dist/index.js";
 
 const testFuncs = {};
 
