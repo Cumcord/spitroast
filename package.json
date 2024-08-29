@@ -1,13 +1,13 @@
 {
   "name": "spitroast",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "A simple JavaScript function patcher.",
   "main": "dist/cjs.js",
   "module": "dist/esm/index.js",
   "types": "dist/types/index.d.ts",
   "scripts": {
-    "test": "npm run prepublish && mocha",
-    "prepublish": "tsup ./src/index.ts --dts --format esm,cjs"
+    "prepublish": "tsup ./src/index.ts --dts --format esm,cjs",
+    "test": "npm run prepublish && node --no-warnings --import ./test/setup.mjs --test ./test/index.mjs"
   },
   "repository": {
     "type": "git",
@@ -17,8 +17,6 @@
   "license": "CC0-1.0",
   "devDependencies": {
     "@types/node": "^22.5.1",
-    "chai": "^5.1.1",
-    "mocha": "^10.7.3",
     "tsup": "^8.2.4",
     "typescript": "^5.5.4"
   }
