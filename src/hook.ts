@@ -1,9 +1,9 @@
 // calls relevant patches and returns the final result
-import { patchedFunctions } from "./shared";
+import { AnyFunction, patchedFunctions } from "./shared";
 
 export default function (
-  patchedFunc: Function,
-  origFunc: Function,
+  patchedFunc: AnyFunction,
+  origFunc: AnyFunction,
   funcArgs: unknown[],
   // the value of `this` to apply
   ctxt: any,

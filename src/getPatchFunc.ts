@@ -3,15 +3,15 @@
 // functional programming strikes again! -- sink
 
 import hook from "./hook";
-import { PatchType, patchedFunctions } from "./shared";
+import { AnyObject, KeysWithFunctionValues, PatchType, PatchTypeToCallbackMap, patchedFunctions } from "./shared";
 import { unpatch } from "./unpatch";
 
 // creates a hook if needed, else just adds one to the patches array
-export default <CallbackType extends Function>(patchType: PatchType) =>
-  (
-    funcName: string,
-    funcParent: any,
-    callback: CallbackType,
+export default <T extends PatchType>(patchType: T) =>
+  <Name extends KeysWithFunctionValues<Parent>, Parent extends AnyObject>(
+    funcName: Name,
+    funcParent: Parent,
+    callback: PatchTypeToCallbackMap<Parent[Name]>[T],
     oneTime = false
   ) => {
     let origFunc = funcParent[funcName];
