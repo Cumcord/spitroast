@@ -2,7 +2,7 @@ export type PatchType = "a" | "b" | "i";
 
 export type PatchTypeToCallbackMap<F extends AnyFunction> = {
   a: (args: Parameters<F>, ret: ReturnType<F>) => ReturnType<F>;
-  b: (args: Parameters<F>) => ReturnType<F>;
+  b: (args: Parameters<F>) => Parameters<F> | void | undefined;
   i: (args: Parameters<F>, origFunc: F) => ReturnType<F>;
 }
 
@@ -17,7 +17,7 @@ export type Patch = {
   // WeakRef to parent object
   p: WeakRef<any>;
   // cleanups
-  c: AnyFunction[];
+  c: Function[];
   // after hooks
   a: Map<symbol, AnyFunction>;
   // before hooks
