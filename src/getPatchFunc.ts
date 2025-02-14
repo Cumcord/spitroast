@@ -3,7 +3,13 @@
 // functional programming strikes again! -- sink
 
 import hook from "./hook";
-import { AnyObject, KeysWithFunctionValues, PatchType, PatchTypeToCallbackMap, patchedFunctions } from "./shared";
+import {
+  AnyObject,
+  KeysWithFunctionValues,
+  PatchType,
+  PatchTypeToCallbackMap,
+  patchedFunctions,
+} from "./shared";
 import { unpatch } from "./unpatch";
 
 // creates a hook if needed, else just adds one to the patches array
@@ -44,11 +50,16 @@ export default <T extends PatchType>(patchType: T) =>
             : Reflect.get(target, prop, receiver),
       });
 
-      const runHook: any = (
-        ctxt: unknown,
-        args: unknown[],
-        construct: boolean
-      ) => hook(replaceProxy, origFunc, args, ctxt, construct);
+      const runHook: any = (ctxt: any, args: unknown[], construct: boolean) =>
+        hook(
+          replaceProxy,
+          (...args) =>
+            construct
+              ? Reflect.construct(origFunc, args, ctxt)
+              : origFunc.apply(ctxt, args),
+          args,
+          ctxt
+        );
 
       patchedFunctions.set(replaceProxy, funcPatch);
 
