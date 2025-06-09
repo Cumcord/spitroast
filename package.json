@@ -2,7 +2,7 @@
   "name": "spitroast",
   "version": "2.1.6",
   "description": "A simple JavaScript function patcher.",
-  "main": "dist/cjs.js",
+  "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/types/index.d.ts",
   "scripts": {
