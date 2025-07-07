@@ -4,51 +4,43 @@
 A very simple JavaScript monkeypatcher library that inserts your code in both ends.
 
 # Usage
-```javascript
+```js
 // ESM
-import * as spitroast from 'spitroast';
+import * as spitroast from "spitroast";
 
 // CJS
-const spitroast = require('spitroast');
-
-// Deno / CDN
-import * as spitroast from 'https://esm.sh/spitroast';
+const spitroast = require("spitroast");
 
 const exampleObject = { testFunction: () => {} };
 
 // Patches that run before the original function
-spitroast.before('testFunction', exampleObject, (args) => { // args is an array of arguments passed to the function
-  console.log('Before');
+spitroast.before("testFunction", exampleObject, (args) => { // `args` is an array of arguments passed to the original function
+  console.log("Before");
 
-  // You can return an array to replace the original arguments
-}, false); // Change false to true to unpatch after the patch is first called!
+  // You can modify `args` directly, or return an array to replace the original arguments
+}, false); // Changing the second argument to true here  would make the patch one-time, meaning it would unpatch after being called once
 
 exampleObject.testFunction(); // logs "Before"
 
-
 // Patches that run after the original function
-spitroast.after('testFunction', exampleObject, (args, response) => { // response is the return value of the function
-  console.log('After');
+spitroast.after("testFunction", exampleObject, (args, ret) => { // `ret` is the return value of the original function
+  console.log("After");
 
-  // You can return something to replace the original response
+  // You can modify `ret` directly, or return something to replace the original return value
 });
-
-exampleObject.testFunction(); // logs "Before", then "After"
-
 
 // Patches that replace the original function
-const unpatch = spitroast.instead('testFunction', exampleObject, (args, originalFunction) => { // instead patches are passed the original function as the second argument
-  console.log('Instead')
+const unpatch = spitroast.instead("testFunction", exampleObject, (args, orig) => { // `orig` is the original function itself
+  console.log("Instead");
 });
 
-exampleObject.testFunction(); // logs "Instead" and nothing else
+// Patches inherit context from the original function, just use `this` as normal
 
-// Unpatches are as simple as running the return value of the patch function
-unpatch();
-// Now if you call the function it'll log "Before" and "After" again
+exampleObject.testFunction(); // Patches stack - This logs "Before", "Instead", "After"
 
-// You can also unpatch every patch
+// Unpatches are as simple as calling the return value of the patch function
+unpatch(); // Now if you call the function it'll log just "Before" and "After"
+
+// You can also unpatch EVERY patch, but be careful with this!
 spitroast.unpatchAll();
-
-// Patches inherit context from the original function, you just have to use `this`
 ```
