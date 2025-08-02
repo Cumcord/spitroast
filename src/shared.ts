@@ -1,42 +1,28 @@
 export type PatchType = "a" | "b" | "i";
 
-export type PatchTypeToCallbackMap<F extends AnyFunction> = {
-  a: (args: Parameters<F>, ret: ReturnType<F>) => ReturnType<F>;
-  b: (args: Parameters<F>) => Parameters<F> | void | undefined;
-  i: (args: Parameters<F>, origFunc: F) => ReturnType<F>;
-}
-
 // we use this array multiple times
 export const patchTypes: PatchType[] = ["a", "b", "i"];
 
 export type Patch = {
   // function name
-  n: string;
+  n: PropertyKey;
   // original function
-  o: AnyFunction;
+  o: Function;
   // WeakRef to parent object
   p: WeakRef<any>;
   // cleanups
   c: Function[];
   // after hooks
-  a: Map<symbol, AnyFunction>;
+  a: Map<symbol, Function>;
   // before hooks
-  b: Map<symbol, AnyFunction>;
+  b: Map<symbol, Function>;
   // instead hooks
-  i: Map<symbol, AnyFunction>;
+  i: Map<symbol, Function>;
 };
 
-export type AnyFunction = (...args: any[]) => any;
-
-export type KeysWithFunctionValues<T extends AnyObject> = {
-  [K in Extract<keyof T, string>]: T[K] extends AnyFunction ? K : never
-}[Extract<keyof T, string>];
-
-export type AnyObject = Record<any, any>;
-
-export let patchedFunctions: WeakMap<AnyFunction, Patch>;
+export let patchedFunctions: WeakMap<Function, Patch>;
 export let resetPatches = () =>
-  (patchedFunctions = new WeakMap<AnyFunction, Patch>());
+  (patchedFunctions = new WeakMap<Function, Patch>());
 
 // Manual minification is funny
 resetPatches();

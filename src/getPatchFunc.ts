@@ -4,27 +4,30 @@
 
 import hook from "./hook";
 import {
-  AnyObject,
-  KeysWithFunctionValues,
   PatchType,
-  PatchTypeToCallbackMap,
   patchedFunctions,
 } from "./shared";
 import { unpatch } from "./unpatch";
 
+interface CallbackTypes<F extends (...args: any[]) => any> {
+  b: (args: Parameters<F>) => Parameters<F> | void | undefined;
+  i: (args: Parameters<F>, origFunc: NonNullable<F>) => ReturnType<F>;
+  a: (args: Parameters<F>, ret: ReturnType<F>) => ReturnType<F> | void | undefined;
+}
+
 // creates a hook if needed, else just adds one to the patches array
 export default <T extends PatchType>(patchType: T) =>
-  <Name extends KeysWithFunctionValues<Parent>, Parent extends AnyObject>(
-    funcName: Name,
-    funcParent: Parent,
-    callback: PatchTypeToCallbackMap<Parent[Name]>[T],
+  <N extends keyof P, P extends Record<PropertyKey, any>>(
+    funcName: N,
+    funcParent: P,
+    callback: CallbackTypes<P[N]>[T],
     oneTime = false
   ) => {
     let origFunc = funcParent[funcName];
 
     if (typeof origFunc !== "function")
       throw new Error(
-        `${funcName} is not a function in ${funcParent.constructor.name}`
+        `${String(funcName)} is not a function in ${funcParent.constructor.name}`
       );
 
     let funcPatch = patchedFunctions.get(origFunc);
